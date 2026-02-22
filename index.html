@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>CRUD Fastify Demo</title>
+</head>
+<body>
+
+  <h2>Gestion des utilisateurs</h2>
+
+  <form id="userForm">
+    <input type="hidden" id="userId">
+    <input type="text" id="name" placeholder="Nom" required>
+    <input type="email" id="email" placeholder="Email" required>
+    <button type="submit">Ajouter </button>
+  </form>
+
+  <h3>Liste des utilisateurs</h3>
+  <ul id="userList"></ul>
+
+<script>
+const API = "http://localhost:3000/users"
+
+const form = document.getElementById("userForm")
+const userList = document.getElementById("userList")
+
+// Charger les utilisateurs
+async function loadUsers() {
+  try {
+    const res = await fetch(API)
+    const users = await res.json()
+    console.log("✅ Utilisateurs reçus:", users)
+
+    userList.innerHTML = ""
+
+    users.forEach(user => {
+      const li = document.createElement("li")
+      
+      // Créer le texte
+      const span = document.createElement("span")
+      span.textContent = `${user.name} - ${user.email} `
+      
+      // Créer le bouton supprimer
+      const deleteBtn = document.createElement("button")
+      deleteBtn.textContent = "Supprimer"
+      deleteBtn.addEventListener("click", () => {
+        console.log("🗑️ Clic sur supprimer, ID:", user.id)
+        deleteUser(user.id)
+      })
+      
+      li.appendChild(span)
+      li.appendChild(deleteBtn)
+      userList.appendChild(li)
+    })
+  } catch (error) {
+    console.error("❌ Erreur loadUsers:", error)
+  }
+}
+form.addEventListener("submit", async (e) => {
+  e.preventDefault()
+
+  const name = document.getElementById("name").value
+  const email = document.getElementById("email").value
+
+  console.log("📤 Envoi création:", { name, email })
+
+  try {
+    const response = await fetch(API, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, email })
+    })
+    
+    const result = await response.json()
+    console.log("✅ Réponse création:", result)
+
+    if (!response.ok) {
+      alert("Erreur: " + (result.error || "Erreur serveur"))
+      return
+    }
+
+    form.reset()
+    loadUsers()
+  } catch (error) {
+    console.error("❌ Erreur création:", error)
+    alert("Erreur lors de la création")
+  }
+})
+
+// Supprimer
+async function deleteUser(id) {
+  console.log("🗑️ Début suppression ID:", id)
+  
+  if (!confirm("Voulez-vous vraiment supprimer cet utilisateur ?")) {
+    console.log("❌ Suppression annulée")
+    return
+  }
+
+  try {
+    console.log("📤 Envoi DELETE à:", `${API}/${id}`)
+    
+    const response = await fetch(`${API}/${id}`, { 
+      method: "DELETE" 
+    })
+    
+    console.log("📥 Status reçu:", response.status)
+    
+    const result = await response.json()
+    console.log("📥 Réponse DELETE:", result)
+
+    if (!response.ok) {
+      alert("Erreur: " + (result.error || "Erreur serveur"))
+      return
+    }
+
+    console.log("✅ Suppression réussie")
+    alert("Utilisateur supprimé !")
+    loadUsers()
+  } catch (error) {
+    console.error("❌ Erreur deleteUser:", error)
+    alert("Erreur lors de la suppression: " + error.message)
+  }
+}
+loadUsers()
+</script>
+
+</body>
+</html>
