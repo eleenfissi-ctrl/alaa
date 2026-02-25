@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<link rel="stylesheet" type="text/css" href="webjars/bootstrap/4.3.1/css/bootstrap.min.css" />
+<head>
+<meta charset="utf-8">
+<title>Liste des Parfums</title>
+</head>
+<body>
+<div class="container mt-5">
+<div class="card">
+<div class="card-header">
+Liste des Parfums
+</div>
+<div class="card-body">
+<table class="table table-striped">
+<tr>
+<th>ID</th><th>Nom Parfum</th><th>Prix</th>
+</tr>
+<tr th:each="p:${parfums}">
+<td th:text="${p.idParfum}"></td>
+<td th:text="${p.nomParfum}"></td>
+<td th:text="${p.prixParfum}"></td>
+</tr>
+
+</table>
+</div>
+</div>
+</div>
+</body>
+</html>
